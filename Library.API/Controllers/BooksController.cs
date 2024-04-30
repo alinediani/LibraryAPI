@@ -6,14 +6,20 @@ namespace Library.API.Controllers
     [Route("books")]
     public class BooksController : Controller
     {
-        [HttpGet("/get")]
-        public IActionResult GetBook()
+        [HttpGet("/getAllBooks")]
+        public IActionResult GetAllBooks()
+        {
+            return View();
+        }
+
+        [HttpGet("/getABook")]
+        public IActionResult GetABook()
         {
             return View();
         }
 
         [HttpPost("/add")]
-        public IActionResult PostBook()
+        public IActionResult AddBook()
         {
             return View();
         }
@@ -23,7 +29,7 @@ namespace Library.API.Controllers
             return View();
         }
         [HttpDelete("/delete")]
-        public IActionResult Delete()
+        public IActionResult DeleteBook()
         {
             return View();
         }
