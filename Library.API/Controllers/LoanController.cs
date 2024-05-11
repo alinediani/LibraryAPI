@@ -1,20 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Library.Application.InputModels;
+using Library.Application.Services.Implementations;
+using Library.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers
 {
+    [ApiController]
+    [Route("api/loans")]
     public class LoanController : Controller
     {
-        [HttpPost("/addLoan")]
-        public IActionResult AddLoan()
+        private readonly ILoanService _loanService;
+        public LoanController(ILoanService loanService)
         {
-            return View();
+            _loanService = loanService;
         }
-
-        [HttpPost("/returnBook")]
-        public IActionResult ReturnBook()
+        [HttpPost]
+        public IActionResult Post([FromBody] NewLoanInputModel model)
         {
-            return View();
+            var id = _loanService.AddLoan(model);
+            return CreatedAtAction(nameof(model.IdBook), new { id = id }, model);
         }
+       
 
     }
 }

@@ -1,37 +1,48 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Library.Application.InputModels;
+using Library.Application.Services.Implementations;
+using Library.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers
 {
     [ApiController]
-    [Route("books")]
+    [Route("api/books")]
     public class BooksController : Controller
     {
-        [HttpGet("/getAllBooks")]
-        public IActionResult GetAllBooks()
+        private readonly IBookService _bookService;
+        public BooksController(IBookService bookService)
         {
-            return View();
+            _bookService = bookService;
+        }
+        [HttpPost]
+        public IActionResult Post([FromBody] NewBookInputModel model)
+        {
+            if (model.Title.Length > 50)
+            {
+                return BadRequest(model.Title);
+            }
+            var id = _bookService.AddBook(model);
+            return CreatedAtAction(nameof(GetById), new { id = id }, model);
+        }
+        [HttpGet("/get")]
+        public IActionResult Get(string query)
+        {
+            var books = _bookService.GetAllBooks(query);
+            return Ok(books);
         }
 
-        [HttpGet("/getABook")]
-        public IActionResult GetABook()
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            return View();
+            _bookService.GetABook(id);
+            return Ok();
         }
 
-        [HttpPost("/add")]
-        public IActionResult AddBook()
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            return View();
-        }
-        [HttpPut("/alter")]
-        public IActionResult PutBook()
-        {
-            return View();
-        }
-        [HttpDelete("/delete")]
-        public IActionResult DeleteBook()
-        {
-            return View();
+            _bookService.Delete(id);
+            return NoContent();
         }
     }
 }
