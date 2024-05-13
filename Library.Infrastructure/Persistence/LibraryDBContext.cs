@@ -10,24 +10,23 @@ namespace Library.Infrastructure.Persistence
 {
     public class LibraryDBContext : DbContext
     {
-        public LibraryDBContext()
+        public LibraryDBContext(DbContextOptions<LibraryDBContext> options) : base (options)
         {
-            Books = new List<Book>
-            {
-                new Book("Código Limpo","Robert Cecil","978-3-16-148410-0",2008)
-            };
-            Users = new List<User>
-            {
-                new User(1,"Aline","alinediani@gmail.com")
-            };
-            Loans = new List<Loan>
-            {
-                new Loan(1,1,"12/05/2024","alinediani@gmail.com")
-            };
+            
         }
-        public List<Book> Books { get; set; }
-        public List<User> Users { get; set; }
-        public List<Loan> Loans  { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Loan> Loans  { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>()
+                .HasKey(p => p.Id);
+            modelBuilder.Entity<User>() 
+                .HasKey(p => p.Id);
+            modelBuilder.Entity<Loan>()
+                .HasKey(p => p.Id);
+        }
 
     }
 }
