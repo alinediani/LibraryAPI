@@ -22,6 +22,7 @@ namespace Library.Application.Services.Implementations
         {
             var user = new User(userInputModel.Id, userInputModel.Name,userInputModel.Email);
             _dbContext.Users.Add(user);
+            _dbContext.SaveChanges();
             return user.Id;
         }
     }

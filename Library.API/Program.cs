@@ -1,5 +1,9 @@
+using Library.Application.Services.Implementations;
+using Library.Application.Services.Interfaces;
+using Library.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +12,12 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+
+builder.Services.AddDbContext<LibraryDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryConnection")));
 
 builder.Services.AddSwaggerGen(c =>
 {

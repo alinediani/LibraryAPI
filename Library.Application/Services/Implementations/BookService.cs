@@ -22,6 +22,7 @@ namespace Library.Application.Services.Implementations
         {
             var book = new Book(bookInputModel.Title, bookInputModel.Author, bookInputModel.ISBN, bookInputModel.YearPublication);
             _dbContext.Books.Add(book);
+            _dbContext.SaveChanges();
             return book.Id;
         }
         public BooksDetailsViewModel GetABook(int id)
@@ -46,6 +47,7 @@ namespace Library.Application.Services.Implementations
         public int Delete(int id)
         {
             var book = _dbContext.Books.SingleOrDefault(p => p.Id == id);
+            _dbContext.SaveChanges();
             return book.Id;
         }
     }  

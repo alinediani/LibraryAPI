@@ -20,5 +20,8 @@ namespace Library.Core.Entities
         public int IdBook { get; set; }
         public string Date { get; set; }
         public string Email { get; set; }
+        public Book Book { get; set; }
+        public UserLoan UserLoan { get; set; }
+        public User User { get; set; }
     }
 }
