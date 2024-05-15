@@ -1,7 +1,12 @@
 ﻿using Library.Application.InputModels;
-using Library.Application.Services.Implementations;
-using Library.Application.Services.Interfaces;
+using Library.Application.Queries;
+using Library.Application.Commands;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Library.Application.Queries.GetAllBooks;
+using Library.Application.Queries.GetBookById;
+using Library.Application.Commands.CreateBook;
+using Library.Application.Commands.DeleteBook;
 
 namespace Library.API.Controllers
 {
@@ -9,39 +14,56 @@ namespace Library.API.Controllers
     [Route("api/books")]
     public class BooksController : Controller
     {
-        private readonly IBookService _bookService;
-        public BooksController(IBookService bookService)
+        private readonly IMediator _mediator;
+        public BooksController(IMediator mediator)
         {
-            _bookService = bookService;
+            _mediator = mediator;
         }
-        [HttpPost]
-        public IActionResult Post([FromBody] NewBookInputModel model)
+
+        [HttpGet]
+        public async Task<IActionResult> Get(string query)
         {
-            if (model.Title.Length > 50)
-            {
-                return BadRequest(model.Title);
-            }
-            var id = _bookService.AddBook(model);
-            return CreatedAtAction(nameof(GetById), new { id = id }, model);
-        }
-        [HttpGet("/get")]
-        public IActionResult Get(string query)
-        {
-            var books = _bookService.GetAllBooks(query);
+            var getAllBooksQuery = new GetAllBooksQuery(query);
+
+            var books = await _mediator.Send(getAllBooksQuery);
+
             return Ok(books);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            _bookService.GetABook(id);
-            return Ok();
+            var query = new GetBookByIdQuery(id);
+
+            var book = await _mediator.Send(query);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(book);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateBookCommand command)
         {
-            _bookService.Delete(id);
+            if (command.Title.Length > 50)
+            {
+                return BadRequest();
+            }
+
+            var id = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetById), new { id = id }, command);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var command = new DeleteBookCommand(id);
+
+            await _mediator.Send(command);
+
             return NoContent();
         }
     }

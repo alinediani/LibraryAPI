@@ -1,7 +1,9 @@
-﻿using Library.Application.InputModels;
-using Library.Application.Services.Implementations;
-using Library.Application.Services.Interfaces;
+﻿using Library.Application.Commands.CreateBook;
+using Library.Application.InputModels;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Library.Application.Commands.CreateLoan;
+using Library.Application.Queries.GetLoanById;
 
 namespace Library.API.Controllers
 {
@@ -9,18 +11,34 @@ namespace Library.API.Controllers
     [Route("api/loans")]
     public class LoanController : Controller
     {
-        private readonly ILoanService _loanService;
-        public LoanController(ILoanService loanService)
+        private readonly IMediator _mediator;
+        public LoanController(IMediator mediator)
         {
-            _loanService = loanService;
+            _mediator = mediator;
         }
+
         [HttpPost]
-        public IActionResult Post([FromBody] NewLoanInputModel model)
+        public async Task<IActionResult> Post([FromBody] CreateLoanCommand command)
         {
-            var id = _loanService.AddLoan(model);
-            return CreatedAtAction(nameof(model.IdBook), new { id = id }, model);
+            var id = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetById), new { id = id }, command);
         }
-       
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var query = new GetLoanByIdQuery(id);
+
+            var loan = await _mediator.Send(query);
+
+            if (loan == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(loan);
+        }
 
     }
 }

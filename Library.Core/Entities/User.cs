@@ -9,14 +9,12 @@ namespace Library.Core.Entities
     public class User : BaseEntity
     {
 
-        public User(int id, string name, string email)
+        public User(string name, string email)
         {
-            Id = id;
             Name = name;
             Email = email;
         }
 
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public List<UserLoan> UserLoans { get; set; }

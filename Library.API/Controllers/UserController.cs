@@ -1,6 +1,7 @@
-﻿using Library.Application.InputModels;
-using Library.Application.Services.Implementations;
-using Library.Application.Services.Interfaces;
+﻿using Library.Application.Commands.CreateUser;
+using Library.Application.InputModels;
+using Library.Application.Queries.GetUserById;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers
@@ -9,16 +10,33 @@ namespace Library.API.Controllers
     [Route("api/users")]
     public class UserController : Controller
     {
-        private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IMediator _mediator;
+        public UserController(IMediator mediator)
         {
-            _userService = userService;
+            _mediator = mediator;
         }
+
         [HttpPost]
-        public IActionResult Post([FromBody] NewUserInputModel model)
+        public async Task<IActionResult> Post([FromBody] CreateUserCommand command)
         {
-            var id = _userService.AddUser(model);
-            return CreatedAtAction(nameof(model.Id), new { id = id }, model);
+            var id = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetById), new { id = id }, command);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var query = new GetUserByIdQuery(id);
+
+            var user = await _mediator.Send(query);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
         }
     }
 }
