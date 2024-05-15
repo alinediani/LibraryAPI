@@ -1,4 +1,5 @@
 ﻿using Library.Application.ViewModels;
+using Library.Core.Repositories;
 using Library.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,19 +10,18 @@ namespace Library.Application.Queries.GetUserById
 {
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UsersDetailsViewModel>
     {
-        private readonly LibraryDBContext _dbContext;
-        public GetUserByIdQueryHandler(LibraryDBContext dbContext)
+        private readonly IUserRepository _userRepository;
+        public GetUserByIdQueryHandler(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         public async Task<UsersDetailsViewModel> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users
-                .Include(x => x.Loans)
-                .SingleOrDefaultAsync(p => p.Id == request.Id);
+            var user = await _userRepository.GetByIdAsync(request.Id);
 
             if (user == null) return null;
+
 
             var userDetailsViewModel = new UsersDetailsViewModel(
                 user.Id,

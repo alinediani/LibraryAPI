@@ -1,5 +1,6 @@
 ﻿using Library.Application.Commands.CreateLoan;
 using Library.Core.Entities;
+using Library.Core.Repositories;
 using Library.Infrastructure.Persistence;
 using MediatR;
 using System;
@@ -12,18 +13,17 @@ namespace Library.Application.Commands.CreateLoan
 {
     public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, int>
     {
-        private readonly LibraryDBContext _dbContext;
-        public CreateLoanCommandHandler(LibraryDBContext dbContext)
+        private readonly ILoanRepository _loanRepository;
+        public CreateLoanCommandHandler(ILoanRepository loanRepository)
         {
-            _dbContext = dbContext;
+            _loanRepository = loanRepository;
         }
 
         public async Task<int> Handle(CreateLoanCommand request, CancellationToken cancellationToken)
         {
             var loan = new Loan(request.IdUser,request.IdBook,request.Date,request.Email);
 
-            await _dbContext.Loans.AddAsync(loan);
-            await _dbContext.SaveChangesAsync();
+            await _loanRepository.AddAsync(loan);
 
             return loan.Id;
         }

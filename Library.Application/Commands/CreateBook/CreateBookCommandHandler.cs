@@ -1,4 +1,5 @@
 ﻿using Library.Core.Entities;
+using Library.Core.Repositories;
 using Library.Infrastructure.Persistence;
 using MediatR;
 using System;
@@ -11,18 +12,17 @@ namespace Library.Application.Commands.CreateBook
 {
     public class CreateBookCommandHandler : IRequestHandler<CreateBookCommand, int>
     {
-        private readonly LibraryDBContext _dbContext;
-        public CreateBookCommandHandler(LibraryDBContext dbContext)
+        private readonly IBookRepository _bookRepository;
+        public CreateBookCommandHandler(IBookRepository bookRepository)
         {
-            _dbContext = dbContext;
+            _bookRepository = bookRepository;
         }
 
         public async Task<int> Handle(CreateBookCommand request, CancellationToken cancellationToken)
         {
             var book = new Book(request.Title, request.Author, request.ISBN, request.YearPublication);
 
-            await _dbContext.Books.AddAsync(book);
-            await _dbContext.SaveChangesAsync();
+            await _bookRepository.AddAsync(book);
 
             return book.Id;
         }

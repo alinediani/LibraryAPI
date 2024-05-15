@@ -1,5 +1,7 @@
 using Library.Application.Commands.CreateBook;
+using Library.Core.Repositories;
 using Library.Infrastructure.Persistence;
+using Library.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<LibraryDBContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryCs")));
 builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(typeof(CreateBookCommand).Assembly); });
-
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Library.API", Version = "v1" });
